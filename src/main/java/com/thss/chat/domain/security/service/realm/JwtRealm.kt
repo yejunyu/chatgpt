@@ -1,48 +1,43 @@
 package com.thss.chat.domain.security.service.realm;
 
-import cn.hutool.jwt.JWTUtil;
-import com.thss.chat.domain.security.model.vo.JwtToken;
-import com.thss.chat.domain.security.service.JwtUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.*;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.realm.AuthorizingRealm;
-import org.apache.shiro.subject.PrincipalCollection;
-
-import java.util.Objects;
+import cn.hutool.jwt.JWTUtil
+import com.thss.chat.domain.security.model.vo.JwtToken
+import org.apache.shiro.authc.AuthenticationInfo
+import org.apache.shiro.authc.AuthenticationToken
+import org.apache.shiro.authc.SimpleAuthenticationInfo
+import org.apache.shiro.authc.UnknownAccountException
+import org.apache.shiro.authz.AuthorizationInfo
+import org.apache.shiro.realm.AuthorizingRealm
+import org.apache.shiro.subject.PrincipalCollection
 
 /**
  * @author yjy
  * @emial yyyejunyu@gmail.com
  * @date 2023/12/15
- * @description
+ * @description 自定义的jwt验证服务
  **/
-@Slf4j
-public class JwtRealm extends AuthorizingRealm {
+class JwtRealm : AuthorizingRealm() {
 
-    private JwtUtil jwtUtil = new JwtUtil();
+    val a = "thss.digitwomen"
 
-    @Override
-    public boolean supports(AuthenticationToken token) {
-        return token instanceof JwtToken;
+    override fun supports(token: AuthenticationToken?): Boolean {
+        return token is JwtToken
     }
 
-    @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        return null;
-    }
-
-    @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        String jwt = (String) token.getPrincipal();
-        if (Objects.isNull(jwt)) {
-            throw new NullPointerException("token is null");
+    override fun doGetAuthenticationInfo(p0: AuthenticationToken?): AuthenticationInfo {
+        val jwt = p0!!.principal as String
+        if (jwt.isEmpty()) {
+            throw NullPointerException()
         }
-        if (!jwtUtil.isVerify(jwt)) {
-            throw new UnknownAccountException();
+        if (!JWTUtil.verify(jwt, a.encodeToByteArray())) {
+            throw UnknownAccountException()
         }
-        String username = (String) jwtUtil.decode(jwt).get("username");
-        log.info("鉴权用户 username：{}", username);
-        return new SimpleAuthenticationInfo(jwt, jwt, "JwtRealm");
+        val username = JWTUtil.parseToken(jwt).getPayload("username")
+        return SimpleAuthenticationInfo(jwt, jwt, "JwtRealm")
     }
+
+    override fun doGetAuthorizationInfo(p0: PrincipalCollection?): AuthorizationInfo? {
+        return null
+    }
+
 }

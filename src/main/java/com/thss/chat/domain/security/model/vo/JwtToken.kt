@@ -1,25 +1,20 @@
-package com.thss.chat.domain.security.model.vo;
+package com.thss.chat.domain.security.model.vo
 
-import lombok.AllArgsConstructor;
-import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.AuthenticationToken
 
 /**
  * @author yjy
  * @emial yyyejunyu@gmail.com
  * @date 2023/12/15
- * @description
+ * @description Token对象存用户id
  **/
-@AllArgsConstructor
-public class JwtToken implements AuthenticationToken {
-    private String jwt;
-
-    @Override
-    public Object getPrincipal() {
-        return jwt;
+data class JwtToken(private val jwt: String) : AuthenticationToken {
+    override fun getPrincipal(): Any {
+        return jwt
     }
 
-    @Override
-    public Object getCredentials() {
-        return jwt;
+    override fun getCredentials(): Any {
+        return jwt
     }
+
 }
