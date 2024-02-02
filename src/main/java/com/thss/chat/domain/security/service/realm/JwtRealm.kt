@@ -2,6 +2,7 @@ package com.thss.chat.domain.security.service.realm;
 
 import cn.hutool.jwt.JWTUtil
 import com.thss.chat.domain.security.model.vo.JwtToken
+import com.thss.chat.infrastructure.common.Constants
 import org.apache.shiro.authc.AuthenticationInfo
 import org.apache.shiro.authc.AuthenticationToken
 import org.apache.shiro.authc.SimpleAuthenticationInfo
@@ -18,7 +19,6 @@ import org.apache.shiro.subject.PrincipalCollection
  **/
 class JwtRealm : AuthorizingRealm() {
 
-    val a = "thss.digitwomen"
 
     override fun supports(token: AuthenticationToken?): Boolean {
         return token is JwtToken
@@ -29,7 +29,7 @@ class JwtRealm : AuthorizingRealm() {
         if (jwt.isEmpty()) {
             throw NullPointerException()
         }
-        if (!JWTUtil.verify(jwt, a.encodeToByteArray())) {
+        if (!JWTUtil.verify(jwt, Constants.KEY.encodeToByteArray())) {
             throw UnknownAccountException()
         }
         val username = JWTUtil.parseToken(jwt).getPayload("username")
